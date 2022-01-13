@@ -1,0 +1,24 @@
+{
+  "name": "rtsp-feed",
+  "version": "1.0.0",
+  "description": "Records RTSP streams and pushes them to cloud storage",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc --build",
+    "start": "node index.js",
+    "dev": "npm run build && npm start"
+  },
+  "author": "Shubhang Tiwari",
+  "license": "ISC",
+  "dependencies": {
+    "chokidar": "^3.5.2",
+    "colors": "^1.4.0",
+    "express": "^4.17.2",
+    "googleapis": "^92.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.8",
+    "typescript": "^4.5.4"
+  }
+}
