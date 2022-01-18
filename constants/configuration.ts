@@ -3,22 +3,29 @@
 import { Camera } from "../utils/Types";
 
 export const CONFIG = {
-  PORT: 8080,
+  PORT: 2408,
+  ROOT_PATH: '/glacier/recording',
   RECORDER: {
-    CLIP_LENGTH: 10, // In Seconds
-    RETRY_DELAY: 5, // In Seconds
-    PATH: '/glacier/recording'
+    CLIP_LENGTH: 30, // In Seconds
+    RETRY_DELAY: 5 // In Seconds
   },
   RECLAIMER: {
-    FREQUENCY: 30, // In Seconds
-    AGE_THRESHOLD: 120 // In Seconds
+    FREQUENCY: 86400, // In Seconds
+    AGE_THRESHOLD: 2592000 // In Seconds
+  },
+  STREAM: {
+    FRAGMENT_LENGTH: 10, // In Seconds
+    LIST_SIZE: 8640
   }
 };
 
+const username: string = '<username>';
+const password: string = '<password>';
+
 export const CAMERAS: Camera[] = [{
-  name: '<Camera Description/Name>',
-  id: '<some_id',
-  mainStream: 'rtsp://<username>:<password>@<ip>:554/<hd_stream_path>',
-  subStream: 'rtsp://<username>:<password>@<ip>:554/<sd_stream_path>',
-  filePrefix: '<recording_file_prefix>'
+  name: 'Front Door',
+  id: 'front_door',
+  mainStream: `rtsp://${username}:${password}@192.168.68.201:554/stream1`,
+  subStream: `rtsp://${username}:${password}@192.168.68.201:554/stream2`,
+  filePrefix: 'front_door'
 }];

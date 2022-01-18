@@ -11,8 +11,10 @@
   "author": "Shubhang Tiwari",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.12",
     "chokidar": "^3.5.2",
     "colors": "^1.4.0",
+    "cors": "^2.8.5",
     "express": "^4.17.2",
     "googleapis": "^92.0.0"
   },

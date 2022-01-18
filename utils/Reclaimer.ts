@@ -2,29 +2,23 @@
 
 import fs from 'fs';
 import { CONFIG } from '../constants/configuration';
-import { Logger } from './Logger';
-import { Camera } from './Types';
+import { Camera, Service } from './Types';
 
-export class Reclaimer {
-
-    #logger: Logger;
-    #camera: Camera;
-    #timer: NodeJS.Timer;
+export class Reclaimer extends Service<NodeJS.Timer> {
 
     constructor(camera: Camera) {
-        this.#camera = camera;
-        this.#logger = new Logger(`${camera.name} Reclaimer`);
-        this.#timer = this.start();
+        super(camera, `${camera.name} Reclaimer`);
+        this.start();
     }
 
     #reclaim() {
-        this.#logger.info('Starting storage reclaimation');
+        this.logger.info('Starting storage reclaimation');
         let now = new Date().getTime();
-        let cameraLocation = `${CONFIG.RECORDER.PATH}/${this.#camera.id}`;
+        let cameraLocation = `${CONFIG.ROOT_PATH}/${this.camera.id}/archive`;
 
         fs.readdir(cameraLocation, (err, files) => {
             if (err) {
-                this.#logger.error(`Unable to fetch recordings for ${this.#camera.name}`);
+                this.logger.error(`Unable to fetch recordings for ${this.camera.name}`);
                 return;
             }
             let staleFiles = files.filter(file => {
@@ -38,7 +32,7 @@ export class Reclaimer {
             });
 
             if (!staleFiles.length) {
-                this.#logger.info(`Nothing to reclaim from ${this.#camera.name}`);
+                this.logger.info(`Nothing to reclaim from ${this.camera.name}`);
                 return;
             }
 
@@ -46,26 +40,28 @@ export class Reclaimer {
                 return sum + fs.lstatSync(`${cameraLocation}/${file}`).size;
             }, fs.lstatSync(`${cameraLocation}/${staleFiles[0]}`).size);
 
-            this.#logger.info(`Reclaimed ${reclaimedStorage} bytes from ${this.#camera.name}`);
+            this.logger.info(`Reclaimed ${reclaimedStorage} bytes from ${this.camera.name}`);
             staleFiles.forEach(staleFile => fs.rm(`${cameraLocation}/${staleFile}`, () => { }));
         });
     };
 
     start() {
-        this.#logger.info('Starting reclaimer');
-        this.#timer = setInterval(this.#reclaim.bind(this), CONFIG.RECLAIMER.FREQUENCY * 1000);
-        return this.#timer;
+        this.logger.info('Starting reclaimer');
+        this.process = setInterval(this.#reclaim.bind(this), CONFIG.RECLAIMER.FREQUENCY * 1000);
+        return this.process;
     }
 
     stop() {
-        this.#logger.info('Stopping reclaimer');
-        clearInterval(this.#timer);
+        this.logger.info('Stopping reclaimer');
+        if (this.process) {
+            clearInterval(this.process);
+        }
     }
 
     restart() {
-        this.#logger.info('Restarting reclaimer');
+        this.logger.info('Restarting reclaimer');
         this.stop();
-        this.start();
+        return this.start();
     }
 
 }
