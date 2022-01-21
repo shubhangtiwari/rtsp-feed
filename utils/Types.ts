@@ -1,3 +1,5 @@
+'use strict';
+
 import { Logger } from './Logger';
 
 export abstract class Service<ServiceType> {
