@@ -3,19 +3,19 @@
 import { Camera } from "../utils/Types";
 
 export const CONFIG = {
-  PORT: 2408,
+  PORT: 80,
   ROOT_PATH: '/glacier/recording',
   RECORDER: {
-    CLIP_LENGTH: 30, // In Seconds
+    CLIP_LENGTH: 300, // In Seconds
     RETRY_DELAY: 5 // In Seconds
   },
   RECLAIMER: {
-    FREQUENCY: 86400, // In Seconds
+    FREQUENCY: '0 0 * * *', // CRON string
     AGE_THRESHOLD: 2592000 // In Seconds
   },
   STREAM: {
-    FRAGMENT_LENGTH: 10, // In Seconds
-    LIST_SIZE: 8640
+    FRAGMENT_LENGTH: 4, // In Seconds
+    LIST_SIZE: 21600
   }
 };
 
