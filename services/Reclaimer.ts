@@ -2,9 +2,10 @@
 
 import fs from 'fs';
 import { CONFIG } from '../constants/configuration';
-import { Camera, Service } from './Types';
+import { Camera, Service } from '../utils/Types';
+import { ScheduledTask, schedule } from 'node-cron';
 
-export class Reclaimer extends Service<NodeJS.Timer> {
+export class Reclaimer extends Service<ScheduledTask> {
 
     constructor(camera: Camera) {
         super(camera, `${camera.name} Reclaimer`);
@@ -41,24 +42,32 @@ export class Reclaimer extends Service<NodeJS.Timer> {
             }, fs.lstatSync(`${cameraLocation}/${staleFiles[0]}`).size);
 
             this.logger.info(`Reclaimed ${reclaimedStorage} bytes from ${this.camera.name}`);
-            staleFiles.forEach(staleFile => fs.rm(`${cameraLocation}/${staleFile}`, () => { }));
+            staleFiles.forEach(staleFile => {
+                if (fs.lstatSync(`${cameraLocation}/${staleFile}`).isDirectory()) {
+                    fs.rmdir(`${cameraLocation}/${staleFile}`, () => { });
+                }
+                else {
+                    fs.rm(`${cameraLocation}/${staleFile}`, () => { });
+                }
+            });
         });
     };
 
-    start() {
+    async start() {
         this.logger.info('Starting reclaimer');
-        this.process = setInterval(this.#reclaim.bind(this), CONFIG.RECLAIMER.FREQUENCY * 1000);
+        if (!this.process) {
+            this.process = schedule(CONFIG.RECLAIMER.FREQUENCY, this.#reclaim.bind(this));
+        }
+        this.process.start();
         return this.process;
     }
 
     stop() {
         this.logger.info('Stopping reclaimer');
-        if (this.process) {
-            clearInterval(this.process);
-        }
+        this.process?.stop();
     }
 
-    restart() {
+    async restart() {
         this.logger.info('Restarting reclaimer');
         this.stop();
         return this.start();
