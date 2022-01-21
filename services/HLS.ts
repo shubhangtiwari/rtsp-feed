@@ -3,20 +3,18 @@
 import fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
 import { CONFIG } from '../constants/configuration';
-import { Camera, Service } from './Types';
+import { Camera, Service } from '../utils/Types';
 
 const KILL_CODE: NodeJS.Signals = 'SIGKILL';
 
 export class HLS extends Service<ChildProcess> {
 
   constructor(camera: Camera) {
-    super(camera, `${camera.name} Stream`);
+    super(camera, `${camera.name} Stream`, `${camera.id}/hls`, true);
     this.start();
   }
 
-  start() {
-    fs.mkdirSync(`${CONFIG.ROOT_PATH}/${this.camera.id}/hls`, { recursive: true });
-
+  async start() {
     this.process = spawn('ffmpeg', [
       '-i', `${this.camera.mainStream}`,
       '-c:v', 'libx264', '-crf', '21', '-preset', 'veryfast', '-c:a', 'aac', '-b:a', '128k', '-ac', '2', '-f', 'hls', '-hls_time', `${CONFIG.STREAM.FRAGMENT_LENGTH}`, '-hls_list_size', `${CONFIG.STREAM.LIST_SIZE}`, '-hls_base_url', `/${this.camera.id}/hls/`, '-hls_segment_filename', `${CONFIG.ROOT_PATH}/${this.camera.id}/hls/%5d.ts`, '-hls_playlist_type', 'event', `${CONFIG.ROOT_PATH}/${this.camera.id}/index.m3u8`
@@ -39,7 +37,7 @@ export class HLS extends Service<ChildProcess> {
     this.logger.info(`Streaming stopped`);
   }
 
-  restart() {
+  async restart() {
     this.stop();
     this.logger.info(`Restarting Streaming`);
     return this.start();

@@ -12,11 +12,15 @@
   "license": "ISC",
   "dependencies": {
     "@types/cors": "^2.8.12",
+    "@types/node-cron": "^3.0.1",
+    "@types/serve-index": "^1.9.1",
     "chokidar": "^3.5.2",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
     "express": "^4.17.2",
-    "googleapis": "^92.0.0"
+    "googleapis": "^92.0.0",
+    "node-cron": "^3.0.0",
+    "serve-index": "^1.9.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
