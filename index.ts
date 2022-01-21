@@ -13,16 +13,19 @@ const app = express();
 const logger = new Logger('RTSP Recorder');
 const operation: ProxyObject = {};
 
+app.use(cors());
+
 // Record all cameras into files
 CAMERAS.forEach(camera => {
   operation[`${camera.id}`] = {
     recorder: new Recorder(camera),
     reclaimer: new Reclaimer(camera)
   };
+
+  app.use(`/${camera.id}`, express.static(`${CONFIG.ROOT_PATH}/${camera.id}`));
 });
 
-app.use(cors());
-app.use('/recording', express.static(CONFIG.ROOT_PATH), serveIndex(CONFIG.ROOT_PATH, {'icons': true}));
+app.use('/archive', express.static(CONFIG.ROOT_PATH), serveIndex(CONFIG.ROOT_PATH, {'icons': true}));
 
 app.listen(CONFIG.PORT, () => {
   logger.info(`RTSP Feed Server started at port ${CONFIG.PORT}`);
